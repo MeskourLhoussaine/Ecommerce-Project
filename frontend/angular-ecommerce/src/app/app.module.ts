@@ -7,6 +7,17 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ProductListComponent } from './components/product-list/product-list.component';
 
+import { RouterModule, Routes } from '@angular/router'; // Single import statement for Routes and RouterModule
+
+const routes: Routes = [
+  // Define your routes here
+  {path: 'category/:id', component:ProductListComponent},
+  {path: 'category', component:ProductListComponent},
+  {path: 'products', component:ProductListComponent},
+  {path: '', redirectTo:'/products',pathMatch:'full'},
+  {path: '**', redirectTo:'/products',pathMatch:'full'},
+];
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -15,7 +26,8 @@ import { ProductListComponent } from './components/product-list/product-list.com
   imports: [
     BrowserModule,
     AppRoutingModule, 
-    HttpClientModule
+    HttpClientModule,
+    RouterModule.forRoot(routes) // Register routes
   ],
   providers: [
     provideClientHydration()

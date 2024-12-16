@@ -10,10 +10,9 @@
     <div class="menu-sidebar-content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar-list">
-                <li><a href="#">Books</a></li>
-                <li><a href="#">Coffee Mugs</a></li>
-                <li><a href="#">Mouse Pads</a></li>
-                <li><a href="#">Luggage Tags</a></li>
+                <li><a routerLink="/category/1" routerLinkActive="active-link" >Books</a></li>
+                <li><a routerLink="/category/2" routerLinkActive="active-link">Coffee Mugs</a></li>
+              
             </ul>
         </nav>
     </div>
@@ -53,8 +52,11 @@
 			<!-- END HEADER DESKTOP-->
 
             	<!-- MAIN CONTENT-->
-<div class="mt-24"> <!-- Ajout d'un espace de 100px environ -->
-    <app-product-list></app-product-list>
+<div class="mt-24"> 
+<!-- Ajout d'un espace de 100px environ 
+
+    <app-product-list></app-product-list>-->
+	<router-outlet></router-outlet>
 </div>
 
                 

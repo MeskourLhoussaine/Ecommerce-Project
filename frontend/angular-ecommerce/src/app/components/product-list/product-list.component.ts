@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../common/product';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -9,17 +10,31 @@ import { Product } from '../../common/product';
 })
 export class ProductListComponent implements OnInit{
 products:Product[]=[];
-  constructor(private productService:ProductService){}
+currentCategoryId:number | undefined;
+  constructor(private productService:ProductService,private route:ActivatedRoute){}
   ngOnInit(): void {
+    this.route.paramMap.subscribe(()=>{
    this.listProducts();
+  });
   }
   listProducts() {
-    this.productService.getProductList().subscribe(
-      data =>{
-        this.products=data;
-        console.log(this.products);  // Affiche les produits dans la console
+    const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
+    if (hasCategoryId) {
+      const idParam = this.route.snapshot.paramMap.get('id');
+      this.currentCategoryId = idParam ? +idParam : 0;
+    } else {
+      this.currentCategoryId = 1;
+    }
+
+    this.productService.getProductList(this.currentCategoryId).subscribe(
+      data => {
+        this.products = data;
+        console.log(this.products);
+      },
+      error => {
+        console.error('Erreur lors de la récupération des produits:', error);
       }
-    )
+    );
   }
 
 }
