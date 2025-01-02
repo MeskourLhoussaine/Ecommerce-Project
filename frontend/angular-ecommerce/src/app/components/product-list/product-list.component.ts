@@ -1,7 +1,10 @@
+
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../common/product';
 import { ActivatedRoute } from '@angular/router';
+import { CartItem } from 'src/app/common/cart-item';
+import { CartService } from 'src/app/services/cart.service';
 
 @Component({
   selector: 'app-product-list',
@@ -11,10 +14,19 @@ import { ActivatedRoute } from '@angular/router';
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
   currentCategoryId: number = 1; // Default to 1
+  previousCategoryId: number=1;
   currentCategoryName: string = 'Books'; // Default category name
   searchMode: boolean = false;
 
-  constructor(private productService: ProductService, private route: ActivatedRoute) {}
+  //new properties for pagination 
+  thePageNumber:number=1;
+  thepageSize:number=5;
+  theTotalElements:number=0;
+  previousKeyword:any;
+  //cartService: any;
+
+
+  constructor(private productService: ProductService, private cartService:CartService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     // Subscribe to route parameters to update product list dynamically
@@ -35,21 +47,19 @@ export class ProductListComponent implements OnInit {
   }
 
   handleSearchProducts(): void {
-    const theKeyword: string | null = this.route.snapshot.paramMap.get('keyword');
-    if (theKeyword) {
-      this.productService.searchProducts(theKeyword).subscribe(
-        data => {
-          if (data.length === 0) {
-            console.log('No products found');
-          } else {
-            this.products = data;
-          }
-        },
-        error => {
-          console.error('Error fetching search results:', error);
-        }
-      );
+    const theKeyword: any = this.route.snapshot.paramMap.get('keyword');
+    if(this.previousKeyword!=theKeyword){
+      this.thePageNumber=1;
     }
+    this.previousKeyword=theKeyword;
+ console.log(`keyword=${theKeyword},thePageNumber= ${this.thePageNumber}`);
+
+   
+      this.productService.searchProductsPaginate(this.thePageNumber,
+                                                this.thepageSize,
+                                                theKeyword).subscribe(this.processResult());
+      
+    
   }
   
 
@@ -66,15 +76,45 @@ export class ProductListComponent implements OnInit {
       this.currentCategoryName = 'Books';
     }
 
+    //Check if we have a different category than previous
+    //Note:Angular will reuse a component if it is currently viewd
+    //
+
+    // if we have a different category id than previous
+    //then set thePageNumber bach to 1
+    if(this.previousCategoryId!=this.currentCategoryId){
+      this.thePageNumber=1
+    }
+       
+
+    
+    this.previousCategoryId=this.currentCategoryId;
+    console.log(`currrentCategoryId=${this.currentCategoryId},thePageNumber`);
     // Fetch products for the selected category
-    this.productService.getProductList(this.currentCategoryId).subscribe(
-      data => {
-        this.products = data;
-        console.log('Fetched products:', this.products);
-      },
-      error => {
-        console.error('Error fetching products:', error);
-      }
-    );
+    this.productService.getProductListPaginate(this.thePageNumber-1,
+                                               this.thepageSize,
+                                               this.currentCategoryId)
+                                               .subscribe(this.processResult() );
+    
+  }
+  updatePageSize(pageSize:string){
+this.thepageSize=+pageSize;
+this.thePageNumber =1;
+this.listProducts();
+
+  }
+addToCart(theProduct:Product){
+  console.log(`Adding to cart:${theProduct.name},${theProduct.unitPrice}`);
+  const theCartItem=new CartItem(theProduct);
+  this.cartService.addToCart(theCartItem);
+}
+
+  processResult(){
+    return(data:any)=>{
+      this.products=data._embedded.products;
+      this.thePageNumber=data.page.number+1;
+      this.thepageSize=data.page.size;
+      this.theTotalElements=data.page.totalElements;
+    }
   }
 }

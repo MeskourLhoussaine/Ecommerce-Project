@@ -11,6 +11,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProductCategoryMenuComponent } from './components/product-category-menu/product-category-menu.component';
 import { SearchComponent } from './components/search/search.component';
 import { ProductDetailsComponent } from './components/product-details/product-details.component'; // Single import statement for Routes and RouterModule
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CartStatusComponent } from './components/cart-status/cart-status.component';
 
 const routes: Routes = [
   // Define your routes here
@@ -30,13 +32,15 @@ const routes: Routes = [
     ProductListComponent,
     ProductCategoryMenuComponent,
     SearchComponent,
-    ProductDetailsComponent
+    ProductDetailsComponent,
+    CartStatusComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule, 
     HttpClientModule,
-    RouterModule.forRoot(routes) // Register routes
+    RouterModule.forRoot(routes),// Register routes
+    NgbModule
   ],
   providers: [
     provideClientHydration()
